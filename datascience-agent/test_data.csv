@@ -1,0 +1,5 @@
+age,name,salary
+25.0,Alice,50000
+30.0,Bob,60000
+,Charlie,75000
+45.0,,90000

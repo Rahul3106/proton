@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d131f"/>
+      <stop offset="50%" stop-color="#080b12"/>
+      <stop offset="100%" stop-color="#040609"/>
+    </linearGradient>
+
+    <!-- Orbital Cyan Gradient -->
+    <linearGradient id="orbitCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#70f0ff"/>
+      <stop offset="50%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+
+    <!-- Orbital Purple Gradient -->
+    <linearGradient id="orbitPurple" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#00e5ff"/>
+    </linearGradient>
+
+    <!-- Radial Core Energy Glow -->
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#70f0ff" stop-opacity="1"/>
+      <stop offset="45%" stop-color="#00e5ff" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Neon Glow Filter -->
+    <filter id="neonGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer Rounded Cyber-Shield Container -->
+  <rect x="5" y="5" width="118" height="118" rx="30" fill="url(#bgGrad)" stroke="#00e5ff" stroke-width="3.5" stroke-opacity="0.95"/>
+  <rect x="9" y="9" width="110" height="110" rx="26" fill="none" stroke="#1e293b" stroke-width="1.5" stroke-opacity="0.6"/>
+
+  <!-- Radial Core Background Glow -->
+  <circle cx="64" cy="64" r="44" fill="url(#coreGlow)" opacity="0.38"/>
+
+  <!-- Atomic Orbital Ring 1 (Tilted -36 deg) -->
+  <ellipse cx="64" cy="64" rx="46" ry="18" fill="none" stroke="url(#orbitCyan)" stroke-width="4" stroke-linecap="round" transform="rotate(-36 64 64)" filter="url(#neonGlow)"/>
+  <!-- Orbital Particle 1 -->
+  <circle cx="98" cy="39" r="5" fill="#70f0ff" filter="url(#neonGlow)"/>
+
+  <!-- Atomic Orbital Ring 2 (Tilted 36 deg) -->
+  <ellipse cx="64" cy="64" rx="46" ry="18" fill="none" stroke="url(#orbitPurple)" stroke-width="4" stroke-linecap="round" transform="rotate(36 64 64)" filter="url(#neonGlow)"/>
+  <!-- Orbital Particle 2 -->
+  <circle cx="30" cy="89" r="5" fill="#c084fc" filter="url(#neonGlow)"/>
+
+  <!-- Central PROTON Nucleus Prism (Delta Triangle) -->
+  <polygon points="64,35 90,80 38,80" fill="#080c14" stroke="#00e5ff" stroke-width="4.5" stroke-linejoin="round" filter="url(#neonGlow)"/>
+
+  <!-- Glowing Central Core Node -->
+  <circle cx="64" cy="64" r="8" fill="#ffffff" filter="url(#neonGlow)"/>
+  <circle cx="64" cy="64" r="4" fill="#00e5ff"/>
+</svg>

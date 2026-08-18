@@ -1,0 +1,16 @@
+services:
+  proton-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: proton-agent-service
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - HOST=0.0.0.0
+      - PORT=8000
+    volumes:
+      - ./outputs:/app/outputs
+      - ./.env:/app/.env:ro
+    restart: unless-stopped

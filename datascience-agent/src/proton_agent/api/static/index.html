@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROTON (prot) — Autonomous Data Science Agent</title>
+  <meta name="description" content="Proton: An autonomous Data Science Agent with point-and-click interactive terminal dashboard, automated EDA, quality auditing, machine learning modeling, explainability, and dataset cleaning guardrails.">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="alternate icon" href="/static/favicon.svg">
+  <link rel="shortcut icon" href="/static/favicon.svg">
+  <link rel="apple-touch-icon" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Main Outer Terminal Panel (Cyberpunk Terminal Dashboard) -->
+    <main class="main-terminal-box" id="mainTerminal">
+
+      <!-- Header Top Bar Badge -->
+      <header class="terminal-header-bar">
+        <div class="terminal-title-badge">PROTON (prot)</div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="action-btn-secondary" style="padding: 3px 10px; font-size: 11px;" onclick="handleShareSession()" title="Copy shareable session URL">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span>Share</span>
+          </button>
+          <button type="button" class="action-btn-secondary" style="padding: 3px 10px; font-size: 11px;" onclick="exportSessionJson()" title="Download session backup JSON">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span>Backup</span>
+          </button>
+          <div class="terminal-status-tag" id="sessionTag">Session: Initializing...</div>
+        </div>
+      </header>
+
+      <!-- Centered ASCII Art Banner -->
+      <section class="ascii-banner-container" aria-label="PROTON ASCII Art Banner">
+        <pre class="ascii-banner" id="asciiLogo">
+  ██████╗ ██████╗  ██████╗ ████████╗ ██████╗ ███╗   ██╗
+  ██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝██╔═══██╗████╗  ██║
+  ██████╔╝██████╔╝██║   ██║   ██║   ██║   ██║██╔██╗ ██║
+  ██╔═══╝ ██╔══██╗██║   ██║   ██║   ██║   ██║██║╚██╗██║
+  ██║     ██║  ██║╚██████╔╝   ██║   ╚██████╔╝██║ ╚████║
+  ╚═╝     ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ ╚═╝  ╚═══╝</pre>
+        <div class="banner-tagline">
+          <span>Autonomous Interactive</span>
+          <span class="highlight">Data Science Agent</span>
+          <span>Environment</span>
+        </div>
+      </section>
+
+      <!-- System Status & Capabilities Sub-Panel -->
+      <section class="sub-panel" aria-labelledby="systemStatusHeading">
+        <div class="sub-panel-header" id="systemStatusHeading">
+          System Status & Engine Capabilities
+        </div>
+        <div class="sub-panel-body">
+          <div class="status-grid">
+            <div class="status-label">Agent Version:</div>
+            <div class="status-value" id="agentVersion">
+              <span class="status-pill pill-loaded">v0.1.0</span>
+            </div>
+
+            <div class="status-label">LLM Engine:</div>
+            <div class="status-value" id="llmEngineStatus">
+              <span class="status-pill pill-online" id="llmPill">
+                <span class="status-dot dot-green" id="llmDot"></span>
+                <span id="llmText">Checking status...</span>
+              </span>
+            </div>
+
+            <div class="status-label">Core Stack:</div>
+            <div class="status-value">
+              <span style="color: #cbd5e1;">Python 3.12 | Pandas | Scikit-Learn | Matplotlib</span>
+            </div>
+
+            <div class="status-label">Train Dataset:</div>
+            <div class="status-value" id="trainDatasetStatus">
+              <span class="status-pill pill-empty" id="trainPill">
+                <span class="status-dot dot-yellow"></span>
+                <span>○ None <span style="color: var(--text-muted); font-weight: normal;">(Drop file or click Ingestion below)</span></span>
+              </span>
+            </div>
+
+            <div class="status-label">Test Dataset:</div>
+            <div class="status-value" id="testDatasetStatus">
+              <span class="status-pill pill-empty" id="testPill">
+                <span>○ None</span>
+              </span>
+            </div>
+
+            <div class="status-label">Dataset Actions:</div>
+            <div class="status-value" style="display: flex; gap: 8px;">
+              <button type="button" class="action-btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="openDataViewer()" id="btnViewData" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>Explore Data & Schema</span>
+              </button>
+              <button type="button" class="action-btn-secondary" style="padding: 4px 10px; font-size: 11px; color: var(--yellow-warn);" onclick="handleRevertDataset()" id="btnRevertData" disabled title="Revert all cleaning changes to original file">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-yellow"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Revert to Original</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6-CARD POINT-AND-CLICK QUICK-ACTIONS RAIL -->
+      <section aria-labelledby="railHeading">
+        <div class="quick-rail-title">
+          <h3 id="railHeading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Point-and-Click Action Rail</span>
+          </h3>
+          <span class="rail-badge-hint">Click any card to open guided workflows with zero typing</span>
+        </div>
+
+        <div class="actions-grid">
+          <!-- 1. Ingestion -->
+          <div class="action-card" id="btnOpenIngest" role="button" tabindex="0" aria-label="Open Ingestion Tool">
+            <div class="action-icon-wrap icon-wrap-ingest">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon-lg"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+            </div>
+            <div class="action-label">Ingestion</div>
+            <div class="action-sub">Upload CSV, Excel, Parquet train & test files</div>
+            <div class="action-badge-cta">Drop File &rarr;</div>
+          </div>
+
+          <!-- 2. EDA & Quality -->
+          <div class="action-card" id="btnOpenEda" role="button" tabindex="0" aria-label="Open EDA and Quality Tools">
+            <div class="action-icon-wrap icon-wrap-eda">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon-lg"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+            <div class="action-label">EDA & Quality</div>
+            <div class="action-sub">Audit data health, missing values, skew & outliers</div>
+            <div class="action-badge-cta">Analyze &rarr;</div>
+          </div>
+
+          <!-- 3. Preprocessing -->
+          <div class="action-card" id="btnOpenClean" role="button" tabindex="0" aria-label="Open Cleaning Tools">
+            <div class="action-icon-wrap icon-wrap-clean">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon-lg"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            </div>
+            <div class="action-label">Preprocessing</div>
+            <div class="action-sub">Preview cleaning diffs, impute, encode & scale</div>
+            <div class="action-badge-cta">Clean &rarr;</div>
+          </div>
+
+          <!-- 4. Machine Learning -->
+          <div class="action-card" id="btnOpenMl" role="button" tabindex="0" aria-label="Open Machine Learning Tools">
+            <div class="action-icon-wrap icon-wrap-ml">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon-lg"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            </div>
+            <div class="action-label">Machine Learning</div>
+            <div class="action-sub">Train models, tune params, compare & predict</div>
+            <div class="action-badge-cta">Train &rarr;</div>
+          </div>
+
+          <!-- 5. Visualization -->
+          <div class="action-card" id="btnOpenViz" role="button" tabindex="0" aria-label="Open Visualization Tools">
+            <div class="action-icon-wrap icon-wrap-viz">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon-lg"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <div class="action-label">Visualization</div>
+            <div class="action-sub">Histograms, KDE plots & correlation heatmaps</div>
+            <div class="action-badge-cta">Plot &rarr;</div>
+          </div>
+
+          <!-- 6. Reporting & Persistence -->
+          <div class="action-card" id="btnOpenReport" role="button" tabindex="0" aria-label="Open Reporting and Persistence Tools">
+            <div class="action-icon-wrap icon-wrap-report">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon-lg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div class="action-label">Reporting & Export</div>
+            <div class="action-sub">Full reports, explainability & model export</div>
+            <div class="action-badge-cta">Export &rarr;</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Terminal Output / Feed Container -->
+      <section class="terminal-output-container" id="terminalFeed" aria-live="polite">
+        <div class="result-card" id="initialWelcomeCard">
+          <div class="result-card-header">
+            <div class="result-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>PROTON Autonomous Agent Ready</span>
+            </div>
+            <div class="result-timestamp">Interactive Environment</div>
+          </div>
+          <div style="color: var(--text-dim); font-size: 12.5px; line-height: 1.6;">
+            Visual Zero-CLI interface is live and connected. You can <strong>drag & drop any dataset into Ingestion</strong>, click category cards to trigger guided workflows, or <strong>type natural language commands in the prompt bar below</strong>.
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer Tagline -->
+      <footer class="terminal-footer">
+        PROTON Agent v0.1.0 • Autonomous Interactive Terminal Environment • Powered by DeepMind & Gemini
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       GUIDED ACTION MODALS (PHASES 4, 5, 6, 7)
+  ──────────────────────────────────────────────────────────────── -->
+
+  <!-- Modal Overlay -->
+  <div class="modal-overlay" id="modalOverlay">
+
+    <!-- 1. INGESTION MODAL -->
+    <div class="guided-modal" id="modalIngest" style="display: none;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+          <span>Ingest & Load Dataset</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Dataset Role:</label>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="action-btn-secondary" id="btnRoleTrain" style="flex: 1; border-color: var(--cyan-primary); color: #fff;" onclick="setUploadRole('train')">Training Dataset</button>
+            <button type="button" class="action-btn-secondary" id="btnRoleTest" style="flex: 1;" onclick="setUploadRole('test')">Test Dataset</button>
+          </div>
+        </div>
+
+        <div class="dropzone-box" id="dropzoneArea" onclick="document.getElementById('fileUploadInput').click()">
+          <div class="dropzone-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="svg-icon-xl"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div class="dropzone-title">Drag & Drop Dataset File Here</div>
+          <div class="dropzone-hint">Supports .csv, .xlsx, .xls, .parquet, .json, .tsv (Auto-Encoding Detection)</div>
+          <input type="file" id="fileUploadInput" style="display: none;" accept=".csv,.xlsx,.xls,.parquet,.json,.tsv,.tab" onchange="handleFileSelect(event)">
+        </div>
+
+        <div style="text-align: center; color: var(--text-muted); font-size: 11px;">— OR SPECIFY LOCAL FILEPATH —</div>
+
+        <div class="form-group">
+          <label class="form-label" for="manualFilePath">File Path on Server Disk:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="manualFilePath" class="form-input" placeholder="e.g. data/iris.csv" style="flex: 1;">
+            <button class="action-btn-primary" onclick="handleManualPathLoad()">Load</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. EDA & QUALITY MODAL (PHASE 4) -->
+    <div class="guided-modal" id="modalEda" style="display: none;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          <span>Exploratory Data Analysis & Quality Audit</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <button class="action-btn-primary" onclick="runToolAction('inspect_dataset')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Inspect Dimensions & Schema</span>
+        </button>
+        <button class="action-btn-primary" style="background: linear-gradient(135deg, #059669, #10b981);" onclick="runAgentQuery('analyze dataset')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>
+          <span>Run Full Autonomous 7-Step EDA Pipeline</span>
+        </button>
+        
+        <div class="form-grid-btns">
+          <button class="action-btn-secondary" onclick="runToolAction('audit_data_quality')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green-online)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-green"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Quality Health Score</span>
+          </button>
+          <button class="action-btn-secondary" onclick="runToolAction('detect_missing_values')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--yellow-warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-yellow"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Missing Value Audit</span>
+          </button>
+          <button class="action-btn-secondary" onclick="runToolAction('detect_duplicates')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span>Duplicate Row Check</span>
+          </button>
+          <button class="action-btn-secondary" onclick="runToolAction('inspect_data_types')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+            <span>Column Data Types</span>
+          </button>
+          <button class="action-btn-secondary" onclick="runToolAction('calculate_correlation')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <span>Feature Correlations</span>
+          </button>
+          <button class="action-btn-secondary" onclick="runToolAction('calculate_statistics')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span>Descriptive Statistics</span>
+          </button>
+          <button class="action-btn-secondary" onclick="runToolAction('detect_outliers')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--yellow-warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-yellow"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Outliers (IQR Method)</span>
+          </button>
+          <button class="action-btn-secondary" onclick="runToolAction('analyze_distribution')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Distribution Skewness</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PREPROCESSING & GUARDRAIL MODAL (PHASE 5) -->
+    <div class="guided-modal" id="modalClean" style="display: none;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--yellow-warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-yellow"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          <span>Cleaning & Preprocessing (Rule 14 Guardrail)</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Rule 14 Explain-Before-Apply Guardrail:</label>
+          <button class="action-btn-primary" style="background: linear-gradient(135deg, #d97706, #f59e0b);" onclick="triggerCleanPreview()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Preview Cleaning Diff (Dry-Run Inspection)</span>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <button class="action-btn-primary" style="background: linear-gradient(135deg, #059669, #10b981);" onclick="runToolAction('clean_dataset', {dry_run: false})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Apply Automated Cleaning Directly</span>
+          </button>
+        </div>
+
+        <div style="border-top: 1px dashed var(--border-dim); padding-top: 12px;" class="form-group">
+          <label class="form-label">Specific Transformations:</label>
+          <div class="form-grid-btns">
+            <button class="action-btn-secondary" onclick="runToolAction('handle_missing_values')">Fill Missing Values</button>
+            <button class="action-btn-secondary" onclick="runToolAction('encode_features')">One-Hot Encode Categoricals</button>
+            <button class="action-btn-secondary" onclick="runToolAction('scale_features')">Standard Scale Numbers</button>
+            <button class="action-btn-secondary" style="color: var(--yellow-warn);" onclick="handleRevertDataset()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--yellow-warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-yellow"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              <span>Revert to Original</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. MACHINE LEARNING & PREDICTION MODAL (PHASE 6) -->
+    <div class="guided-modal" id="modalMl" style="display: none; max-width: 660px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--purple-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-purple"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          <span>Machine Learning, Model Suggestions & Prediction</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="mlTargetSelect">Target Column to Predict (Auto-Detected):</label>
+          <select id="mlTargetSelect" class="form-select" onchange="handleTargetColumnChange()">
+            <option value="">-- Auto-Detect Target Column --</option>
+          </select>
+        </div>
+
+        <!-- Dynamic Top 5 Suggested Models Section -->
+        <div class="form-group" id="mlSuggestedWrap" style="background: rgba(168, 85, 247, 0.06); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: var(--radius-sm); padding: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <div style="font-size: 11.5px; font-weight: 700; color: #c084fc; display: flex; align-items: center; gap: 4px;">
+              <span>★ Top 5 Recommended Models for this Dataset:</span>
+            </div>
+            <span id="mlProblemBadge" class="status-pill pill-online" style="font-size: 10px; padding: 1px 6px;">Classification</span>
+          </div>
+          <div id="mlTop5Chips" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <!-- Generated dynamically via app.js -->
+            <div style="color: var(--text-muted); font-size: 11px; grid-column: 1 / -1;">Select or load a dataset to view recommendations.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="mlModelSelect">Algorithm Selection (All Available Models):</label>
+          <select id="mlModelSelect" class="form-select">
+            <option value="compare_models">Compare All Candidates (Generate Leaderboard)</option>
+            <optgroup label="★ Top 5 Suggested Models" id="optgroupSuggested">
+              <!-- Populated dynamically via app.js -->
+            </optgroup>
+            <optgroup label="Ensemble & Tree Models" id="optgroupEnsemble">
+              <option value="random_forest">Random Forest</option>
+              <option value="gradient_boosting">Gradient Boosting</option>
+              <option value="extra_trees">Extra Trees (Extremely Randomized)</option>
+              <option value="hist_gradient_boosting">Hist Gradient Boosting (High Speed)</option>
+              <option value="adaboost">AdaBoost</option>
+              <option value="decision_tree">Decision Tree</option>
+            </optgroup>
+            <optgroup label="Linear & Regularized Models" id="optgroupLinear">
+              <option value="logistic_regression">Logistic / Linear Regression</option>
+              <option value="ridge">Ridge (L2 Regularized)</option>
+              <option value="lasso">Lasso (L1 Feature Selection)</option>
+            </optgroup>
+            <optgroup label="Distance & Kernel Models" id="optgroupKernel">
+              <option value="svm">Support Vector Machine (SVM / SVR)</option>
+              <option value="knn">K-Nearest Neighbors (KNN)</option>
+            </optgroup>
+            <optgroup label="Neural & Probabilistic Models" id="optgroupNeural">
+              <option value="mlp">Multi-Layer Perceptron (MLP Neural Net)</option>
+              <option value="naive_bayes">Naive Bayes / Bayesian Ridge</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px;">
+          <input type="checkbox" id="mlTuneCheckbox" style="accent-color: var(--cyan-primary); cursor: pointer;">
+          <label for="mlTuneCheckbox" class="form-label" style="cursor: pointer; margin: 0;">Run Hyperparameter Tuning (RandomizedSearchCV)</label>
+        </div>
+
+
+        <button class="action-btn-primary" onclick="handleMlSubmit()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>Train / Compare Models</span>
+        </button>
+
+        <div style="border-top: 1px dashed var(--border-dim); padding-top: 12px;" class="form-group">
+          <label class="form-label">Inference & Predictions:</label>
+          <div class="form-grid-btns">
+            <button class="action-btn-primary" style="background: linear-gradient(135deg, #7c3aed, #a855f7);" onclick="openSingleRowPredictionModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>Single-Row Interactive Predictor</span>
+            </button>
+            <button class="action-btn-secondary" onclick="runToolAction('predict', {n_samples: 5})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="16" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>
+              <span>Top 5 Sample Predictions</span>
+            </button>
+            <button class="action-btn-secondary" onclick="runToolAction('explain_model')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span>Explain Active Model</span>
+            </button>
+            <button class="action-btn-secondary" onclick="handleExportPredictions()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Batch Predict & Export CSV</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. SINGLE-ROW PREDICTION FORM GENERATOR MODAL (PHASE 6) -->
+    <div class="guided-modal" id="modalSinglePredict" style="display: none; max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--purple-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-purple"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Single-Row Interactive Feature Predictor</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 11.5px; color: var(--text-dim);">Enter feature values to predict output in real-time:</div>
+          <button type="button" class="action-btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="populateRandomSingleRowData()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="16" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>
+            <span>Fill with Sample</span>
+          </button>
+        </div>
+
+        <!-- Dynamically generated feature form fields -->
+        <div id="singleRowFormContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 48vh; overflow-y: auto; padding-right: 4px;">
+          <!-- Generated via app.js -->
+        </div>
+
+        <button class="action-btn-primary" style="margin-top: 8px;" onclick="submitSingleRowPrediction()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Run Model Prediction</span>
+        </button>
+
+        <!-- Prediction Result Output Box -->
+        <div id="singleRowResultBox" style="display: none; background: rgba(0, 229, 255, 0.08); border: 1.5px solid var(--cyan-primary); border-radius: var(--radius-sm); padding: 14px;">
+          <!-- Populated on predict -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. DATASET & SCHEMA EXPLORER MODAL (PHASE 4) -->
+    <div class="guided-modal" id="modalDataViewer" style="display: none; max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Interactive Dataset & Schema Explorer</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div id="viewerStatsHeader" style="font-size: 12px; color: var(--cyan-light); font-weight: 600;">Loading dataset...</div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button class="action-btn-secondary" style="padding: 3px 8px;" onclick="changeSamplePage(-1)">&larr; Prev</button>
+            <span id="viewerPageLabel" style="font-size: 11px; color: var(--text-dim);">Page 1</span>
+            <button class="action-btn-secondary" style="padding: 3px 8px;" onclick="changeSamplePage(1)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <div id="viewerTableWrap" class="feed-table-wrap" style="max-height: 52vh; overflow-y: auto;">
+          <!-- Populated via app.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. VISUALIZATION MODAL (PHASE 4/6) -->
+    <div class="guided-modal" id="modalViz" style="display: none;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Statistical Visualizations</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="vizColSelect">Feature Distribution (Histogram / KDE):</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="vizColSelect" class="form-select" style="flex: 1;">
+              <option value="">Select a column...</option>
+            </select>
+            <button class="action-btn-primary" onclick="handlePlotDistribution()">Plot</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button class="action-btn-secondary" onclick="runToolAction('plot_correlation_matrix')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <span>Plot Correlation Heatmap Matrix</span>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <button class="action-btn-secondary" onclick="runToolAction('plot_feature_importance')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--yellow-warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-yellow"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Plot Model Feature Importance</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. REPORTING & EXPORT MODAL (PHASE 7) -->
+    <div class="guided-modal" id="modalReport" style="display: none;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon icon-cyan"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Reporting, Explainability & Export</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <button class="action-btn-primary" onclick="runToolAction('generate_report')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Generate Comprehensive Executive Report</span>
+        </button>
+
+        <button class="action-btn-secondary" onclick="runToolAction('explain_model')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Generate Confusion Matrix & ROC Curves</span>
+        </button>
+
+        <div style="border-top: 1px dashed var(--border-dim); padding-top: 12px;" class="form-group">
+          <label class="form-label" for="exportModelName">Export Active Model to Disk (.pkl):</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="exportModelName" class="form-input" placeholder="e.g. best_model" style="flex: 1;">
+            <button class="action-btn-primary" onclick="handleExportModel()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Export Model</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="exportPredsName">Export Dataset Predictions (.csv):</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="exportPredsName" class="form-input" placeholder="e.g. predictions.csv" style="flex: 1;">
+            <button class="action-btn-primary" onclick="handleExportPredictions()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       AUTOCOMPLETE CHIPS BAR & BOTTOM PROMPT
+  ──────────────────────────────────────────────────────────────── -->
+  <div class="bottom-prompt-container">
+    
+    <!-- Dynamic Clickable Autocomplete Suggestions Chips -->
+    <div class="autocomplete-chips-bar" id="chipsBar" aria-label="Suggested Commands">
+      <!-- Generated dynamically by app.js -->
+    </div>
+
+    <div class="prompt-inner-wrap">
+      <div class="prompt-prefix">
+        <span>prot</span><span class="chevron">&gt;</span>
+      </div>
+      <input 
+        type="text" 
+        id="promptInput" 
+        class="prompt-input" 
+        placeholder="Type a natural language command (e.g. 'analyze dataset', 'train decision tree', 'help')..." 
+        autocomplete="off" 
+        spellcheck="false"
+      />
+      <button id="sendBtn" class="prompt-btn" aria-label="Execute command">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
+        <span>EXECUTE</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
